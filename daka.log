@@ -1,0 +1,37 @@
+DEBUG:root:debug
+INFO:root:info
+WARNING:root:warning
+CRITICAL:root:critical
+DEBUG:root:debug
+INFO:root:info
+WARNING:root:warning
+CRITICAL:root:critical
+DEBUG:root:debug
+INFO:root:info
+WARNING:root:warning
+CRITICAL:root:critical
+DEBUG:root:debug
+INFO:root:info
+WARNING:root:warning
+CRITICAL:root:critical
+DEBUG - 2022-09-04 17:16:31,087 - root - debug
+INFO - 2022-09-04 17:16:31,087 - root - info
+WARNING - 2022-09-04 17:16:31,087 - root - warning
+CRITICAL - 2022-09-04 17:16:31,087 - root - critical
+DEBUG - 2022-09-04 17:42:10,198 - urllib3.connectionpool - Starting new HTTP connection (1): 127.0.0.1:10809
+DEBUG - 2022-09-04 17:42:10,206 - urllib3.connectionpool - http://127.0.0.1:10809 "GET http://202.203.16.42/ HTTP/1.1" 200 None
+INFO - 2022-09-04 17:42:10,208 - root - 获取token成功, token:035b248c-8b3e-46e6-b182-25a35ee683bc
+DEBUG - 2022-09-04 17:42:10,210 - urllib3.connectionpool - Starting new HTTP connection (1): 127.0.0.1:10809
+DEBUG - 2022-09-04 17:42:11,275 - urllib3.connectionpool - http://127.0.0.1:10809 "POST http://202.203.16.42//login/Login.htm HTTP/1.1" 200 0
+INFO - 2022-09-04 17:42:11,275 - root - 用户：20222015120003获取session_id成功，session_id: 06349B500C5C73906EC990A3933A6423-n1.xgxt2
+DEBUG - 2022-09-04 17:42:11,276 - urllib3.connectionpool - Starting new HTTP connection (1): 127.0.0.1:10809
+DEBUG - 2022-09-04 17:42:12,333 - urllib3.connectionpool - http://127.0.0.1:10809 "POST http://202.203.16.42/syt/zzapply/queryxmqks.htm?type=xsfxtwjc HTTP/1.1" 200 None
+INFO - 2022-09-04 17:42:12,334 - root - 用户：20222015120003 已获取xmid, xmid: ['ff8080817f8b5da8017fdf53e9af3ac3']
+INFO - 2022-09-04 17:42:12,334 - root - 学生：20222015120003 信息获取完成, 信息：{'self': Student(username='20222015120003', password='@c20222015120003', token='035b248c-8b3e-46e6-b182-25a35ee683bc', session_id='06349B500C5C73906EC990A3933A6423-n1.xgxt2', xm_id=['ff8080817f8b5da8017fdf53e9af3ac3'])}
+DEBUG - 2022-09-04 17:42:12,335 - urllib3.connectionpool - Starting new HTTP connection (1): 127.0.0.1:10809
+DEBUG - 2022-09-04 17:42:12,553 - urllib3.connectionpool - http://127.0.0.1:10809 "POST http://202.203.16.42/syt/zzapply/checkrestrict.htm HTTP/1.1" 200 18
+INFO - 2022-09-04 17:42:12,554 - root - 用户：20222015120003 今日已经申请
+DEBUG - 2022-09-04 17:42:12,555 - urllib3.connectionpool - Starting new HTTP connection (1): 127.0.0.1:10809
+DEBUG - 2022-09-04 17:42:12,756 - urllib3.connectionpool - http://127.0.0.1:10809 "GET http://8.210.0.124:5700/send_msg?message_type=private&user_id=1953385462&&message=%E6%89%93%E5%8D%A1%E6%88%90%E5%8A%9F%202022-09-04%2017:42-12 HTTP/1.1" 200 62
+INFO - 2022-09-04 17:42:12,756 - root - QQ消息已发送, {"data":{"message_id":-1171947292},"retcode":0,"status":"ok"}
+
