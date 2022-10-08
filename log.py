@@ -1,23 +1,34 @@
-# @Time : 2022/9/4 16:57 
+# @Time : 2022/10/8 22:33 
 # @Author : kang
 # @File : log.py
+# @Desc: 日志模块
+import datetime
 import logging
+from logging import handlers
 
+# 定义logger
+console_logger = logging.getLogger('console_logger')
+file_logger = logging.getLogger('file_logger')
 
-def get_file_logger(filename: str = '/var/log/daka.log'):
-    logging.basicConfig(filename=filename, encoding='utf8', level=logging.DEBUG,
-                        format='%(levelname)s - %(asctime)s - %(name)s - %(message)s')
-    ch = logging.StreamHandler()
-    fmt = logging.Formatter('%(levelname)s - %(asctime)s - %(name)s - %(message)s')
-    ch.setFormatter(fmt)
-    logger = logging.getLogger()
-    logger.addHandler(ch)
-    return logger
+console_handler = logging.StreamHandler()
+file_handler = handlers.TimedRotatingFileHandler(
+    filename='/var/log/yiban/daka.log',
+    # filename='daka.log',
+    when='midnight',
+    interval=1,
+    atTime=datetime.datetime(year=2022, month=10, day=7),
+)
 
+fmt = logging.Formatter(
+    fmt='%(asctime)s| %(levelname)-8s | %(name)-10s | %(pathname)-50s | %(lineno)-5d | %(funcName)-15s |  %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+console_handler.setFormatter(fmt)
+console_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(fmt)
+file_handler.setLevel(logging.DEBUG)
 
-if __name__ == '__main__':
-    log = get_file_logger()
-    log.debug('debug')
-    log.info('info')
-    log.warning('warning')
-    log.critical('critical')
+console_logger.setLevel(logging.DEBUG)
+console_logger.addHandler(console_handler)
+file_logger.setLevel(logging.DEBUG)
+file_logger.addHandler(file_handler)

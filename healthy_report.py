@@ -1,95 +1,148 @@
 # @Time : 2022/9/3 19:00 
 # @Author : kang
 # @File : healthy_report.py
-import datetime
 import json
+import logging
 
+import config
 import requests
+import base64
+import re
 
-from generate_student import generate_student
-from student import Student
 import log
 
-check_url = 'http://202.203.16.42/syt/zzapply/checkrestrict.htm'
-report_url = 'http://202.203.16.42/syt/zzapply/operation.htm'
-logger = log.get_file_logger()
 
-
-def is_report(student: Student, xm_id: str) -> bool:
+def is_report(username: str, session_id: str, xm_id: str) -> bool:
     """
     检查是否已经完成健康报送
-    :param student: 学生信息
-    :param xm_id: 填报标识
     :return: 是否完成健康上报
     """
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36',
-        'Cookie': f'JSESSIONID={student.session_id}; username={student.username}; menuVisible=1',
-    }
-    data = [{
-        'xmid': xm_id,
-        'pdnf': 2020,
-    } for xm_id in student.xm_id]
-    res = requests.post(check_url, headers=headers, data=data)
-    res.raise_for_status()
-    if '今日已经申请' in res.content.decode():
-        logger.info(f'用户：{student.username} 今日已经申请')
-        return True
-    else:
-        logger.info(f'用户：{student.username} 未完成申请，即将自动报送健康信息')
-        return False
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36',
+            'Cookie': f'JSESSIONID={session_id}; username={username}; menuVisible=1',
+        }
+        data = {
+            'xmid': xm_id,
+            'pdnf': 2020,
+        }
+        res = requests.post(config.check_url, headers=headers, data=data)
+        res.raise_for_status()
+        if '今日已经申请' in res.content.decode():
+            return True
+        else:
+            return False
+    except Exception as e:
+        log.file_logger.exception(e)
+        log.console_logger.exception(e)
 
 
-def healthy_report(student: Student):
+def is_login(username: str, session_id: str):
     """
-    健康上报
-    :param student: 学生信息
+    检查是否登录
     :return:
     """
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36',
-        'Cookie': f'JSESSIONID={student.session_id}; username={student.username}; menuVisible=1',
-    }
-    flag = True
-    for item in student.xm_id:
-        if not is_report(student, item):
-            info = {"xmqkb": {"id": item},
-                    "c1": "小于37.3℃", "c2": "否",
-                    "type": "XSFXTWJC",
-                    "location_longitude": 100.157767,
-                    "location_latitude": 25.668927,
-                    "location_address": "云南省 大理白族自治州 大理市 至理南路 3号 靠近瑞幸咖啡(大理大学校区店) ",
-                    }
-            data = {
-                'data': json.dumps(info),
-                'msgUrl': 'syt/zzglappro/index.htm?type=xsfxtwjc&xmid={xmid}'.format(xmid=item),
-                'multiSelectData': '',
-                'verCode': '',
-            }
-            res = requests.post(report_url, headers=headers, data=data)
-            res.raise_for_status()
-            if res.content.decode() == 'success' or res.content.decode() == 'Applied today':
-                logger.info(f'用户；{student.username} 打卡成功')
-            else:
-                logger.error(f'用户：{student.username} 打卡失败，请求体：{str(data)}, 返回体：{res.content.decode()}')
-                flag = False
-    return flag
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36',
+            'Cookie': f'JSESSIONID={session_id}; username={username}; menuVisible=1',
+        }
+        res = requests.post(url=config.check_login_url, headers=headers)
+        res.raise_for_status()
+        if 'true' in res.content.decode():
+            return True
+        else:
+            return False
+    except Exception as e:
+        log.file_logger.exception(e)
+        log.console_logger.exception(e)
 
 
-def daka(username: str, password: str = None):
-    student = generate_student(username, password)
-    return healthy_report(student)
+def healthy_report(username: str, session_id: str, xm_id: str) -> bool:
+    """
+    健康上报
+    :return:
+    """
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36',
+            'Cookie': f'JSESSIONID={session_id}; username={username}; menuVisible=1',
+        }
+        info = {"xmqkb": {"id": xm_id},
+                "c1": "小于37.3℃", "c2": "否",
+                "type": "XSFXTWJC",
+                "pdnf": "2020",
+                "sqbzt": "提交",
+                "location_longitude": config.location.get('location_longitude'),
+                "location_latitude": config.location.get('location_latitude'),
+                "location_address": config.location.get('address'),
+                }
+        data = {
+            'data': json.dumps(info),
+            'msgUrl': 'syt/zzglappro/index.htm?type=xsfxtwjc&xmid={xmid}'.format(xmid=xm_id),
+            'multiSelectData': '',
+            'verCode': '',
+        }
+        res = requests.post(config.report_url, headers=headers, data=data)
+        res.raise_for_status()
+        if res.content.decode() == 'success' or res.content.decode() == 'Applied today':
+            return True
+        else:
+            return False
+    except Exception as e:
+        log.file_logger.exception(f'错误信息: {e}, username: {username}, session_id: {session_id}, xm_id: {xm_id}')
+        log.console_logger.exception(f'错误信息: {e}, username: {username}, session_id: {session_id}, xm_id: {xm_id}')
 
 
-if __name__ == '__main__':
-    username = '20222015120003'
-    with open('/tmp/daka.log', 'a', encoding='utf8') as f:
-        try:
-            if daka(username):
-                f.write(f'打卡成功 {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}\n')
-            else:
-                f.write(f'打卡失败 {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}\n')
-        except Exception as e:
-            logger.error(f'{str(e)}')
-            f.write(str(e))
-            f.write('\n')
+def get_token() -> str:
+    """
+    获取token
+    :return:
+    """
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36',
+        }
+        res = requests.get(config.token_url, headers=headers)
+        res.raise_for_status()
+        cookie = res.headers.get('Set-Cookie')
+        token = re.findall(r'token=(.*?);', cookie)
+        if len(token) == 1:
+            return token[0]
+        else:
+            return ''
+    except Exception as e:
+        log.file_logger.exception(e)
+        log.console_logger.exception(e)
+
+
+def get_cookie(username: str, password: str, token: str) -> str:
+    """
+    登录，返回cookie
+    :return: cookie
+    """
+    try:
+        username = base64.b64encode(username.encode())
+        password = base64.b64encode(password.encode())
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36',
+        }
+        data = {
+            'username': username,
+            'password': password,
+            'verification': '',
+            'token': token,
+        }
+        res = requests.post(config.login_url, headers=headers, data=data)
+        res.raise_for_status()
+        cookie = res.headers.get('Set-Cookie')
+        session_id = re.findall(r'JSESSIONID=(.*?);', cookie)
+        if len(session_id) == 1:
+            log.file_logger.info(f'登录成功, student: {username}, password: {password}, session_id: {session_id[0]}')
+            return session_id[0]
+        else:
+            log.file_logger.warning(f'登录失败, student: {username}, password: {password}')
+            return ''
+    except Exception as e:
+        log.file_logger.exception(f'错误信息：{e}, student: {username}, password: {password}')
+        log.console_logger.exception(f'错误信息：{e}, student: {username}, password: {password}')
