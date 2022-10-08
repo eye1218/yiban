@@ -2,14 +2,12 @@
 # @Author : kang
 # @File : scheduler.py
 from apscheduler.schedulers.blocking import BlockingScheduler
-import logging
-
 import daka
 import report_check
 import user_info_check
 
-logging.basicConfig()
-logging.getLogger('apscheduler').setLevel(logging.INFO)
+# logging.basicConfig()
+# logging.getLogger('apscheduler').setLevel(logging.INFO)
 
 
 scheduler = BlockingScheduler()
