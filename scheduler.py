@@ -80,7 +80,8 @@ scheduler.add_job(
     func=daka.daka,
     trigger='cron',
     name='自动打卡',
-    hour='*/1',
+    hour='8-23/1',
+    minute='2',
 )
 
 scheduler.start()
