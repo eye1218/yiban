@@ -122,14 +122,14 @@ def get_cookie(username: str, password: str, token: str) -> str:
     :return: cookie
     """
     try:
-        username = base64.b64encode(username.encode())
-        password = base64.b64encode(password.encode())
+        e_username = base64.b64encode(username.encode())
+        e_password = base64.b64encode(password.encode())
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36',
         }
         data = {
-            'username': username,
-            'password': password,
+            'username': e_username,
+            'password': e_password,
             'verification': '',
             'token': token,
         }
