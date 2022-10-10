@@ -16,7 +16,7 @@ file_handler = handlers.TimedRotatingFileHandler(
     # filename='daka.log',
     when='midnight',
     interval=1,
-    atTime=datetime.datetime(year=2022, month=10, day=7),
+    # atTime=datetime.datetime(year=2022, month=10, day=7),
 )
 
 fmt = logging.Formatter(
