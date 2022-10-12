@@ -2,7 +2,6 @@
 # @Author : kang
 # @File : healthy_report.py
 import json
-import logging
 
 import config
 import requests
