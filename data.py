@@ -17,15 +17,15 @@ def sync_auto_student():
     try:
         session = config.get_session()
         auto_added_student = [item.username for item in session.query(Attendance).with_entities(Attendance.username)]
-        auto_student = (item.number for item in session.query(StudentInfo.auto == 1).with_entities(StudentInfo.number))
+        auto_student = (item.number for item in session.query(StudentInfo).filter(StudentInfo.auto == 1).with_entities(StudentInfo.number))
 
         for item in auto_student:
             if item not in auto_added_student:
                 attendance = Attendance(
-                    username=item.username,
+                    username=item,
                 )
                 session.add(attendance)
-                log.file_logger.info(f'正在添加自动打卡, username: {item.number}')
+                log.file_logger.info(f'正在添加自动打卡, username: {item}')
         session.commit()
         log.file_logger.info(f'student_info表中的自动打卡信息已同步到attendance数据库')
     except Exception as e:
