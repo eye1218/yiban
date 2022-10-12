@@ -3,6 +3,7 @@
 # @File : scheduler.py
 from apscheduler.schedulers.blocking import BlockingScheduler
 import daka
+import data
 import report_check
 import user_info_check
 
@@ -61,7 +62,7 @@ scheduler.add_job(
 )
 
 scheduler.add_job(
-    func=daka.reset,
+    func=data.reset,
     trigger='cron',
     name='每日数据清零',
     hour='23',
@@ -69,7 +70,7 @@ scheduler.add_job(
 )
 
 scheduler.add_job(
-    func=daka.store_data,
+    func=data.store_data,
     trigger='cron',
     name='存储每日数据',
     hour='23',
@@ -82,6 +83,14 @@ scheduler.add_job(
     name='自动打卡',
     hour='8-23/1',
     minute='2',
+)
+
+scheduler.add_job(
+    func=data.sync_auto_student,
+    trigger='cron',
+    name='自动打卡信息同步',
+    hour='*/1',
+    minute='0',
 )
 
 scheduler.start()
